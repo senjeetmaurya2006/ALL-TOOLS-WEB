@@ -23,11 +23,14 @@ import {
   Maximize, 
   Utensils, 
   Tag, 
-  BrainCircuit 
+  BrainCircuit,
+  FileUp,
+  Table,
+  ListTodo
 } from 'lucide-react';
 import { Tool, ToolCategory } from '../types';
 
-// Importing Tool Components (We will define these in subsequent files)
+// Importing Tool Components
 import { AIHelper } from '../components/tools/AITool';
 import { 
   ScientificCalculator, 
@@ -64,6 +67,8 @@ import {
   AspectRatioCalculator 
 } from '../components/tools/MediaTools';
 import { Stopwatch } from '../components/tools/DateTools';
+import { ImageToPDF, TextToPDF } from '../components/tools/PDFTools';
+import { CSVToJSON, TodoList } from '../components/tools/DataTools';
 
 export const TOOLS: Tool[] = [
   // --- AI ---
@@ -75,6 +80,44 @@ export const TOOLS: Tool[] = [
     icon: BrainCircuit,
     component: AIHelper,
     keywords: ['ai', 'chat', 'gemini', 'gpt', 'help', 'write']
+  },
+  // --- PDF Tools (NEW) ---
+  {
+    id: 'image-to-pdf',
+    name: 'Image to PDF',
+    description: 'Convert multiple images into a single PDF file.',
+    category: ToolCategory.CONVERTER,
+    icon: ImageIcon,
+    component: ImageToPDF,
+    keywords: ['pdf', 'image', 'convert', 'jpg', 'png']
+  },
+  {
+    id: 'text-to-pdf',
+    name: 'Text to PDF',
+    description: 'Convert raw text into a downloadable PDF document.',
+    category: ToolCategory.CONVERTER,
+    icon: FileUp,
+    component: TextToPDF,
+    keywords: ['pdf', 'text', 'document', 'write']
+  },
+  // --- Data Tools (NEW) ---
+  {
+    id: 'csv-to-json',
+    name: 'CSV to JSON',
+    description: 'Convert Comma Separated Values to JSON format.',
+    category: ToolCategory.CONVERTER,
+    icon: Table,
+    component: CSVToJSON,
+    keywords: ['csv', 'json', 'data', 'convert', 'excel']
+  },
+  {
+    id: 'todo-list',
+    name: 'Simple To-Do',
+    description: 'A minimal task manager for quick organization.',
+    category: ToolCategory.GENERATOR,
+    icon: ListTodo,
+    component: TodoList,
+    keywords: ['task', 'list', 'organize', 'plan']
   },
   // --- Calculators ---
   {

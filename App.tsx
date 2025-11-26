@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Search, 
   Menu, 
@@ -7,7 +7,8 @@ import {
   Sun, 
   Grid, 
   ChevronRight,
-  LayoutGrid
+  LayoutGrid,
+  Download
 } from 'lucide-react';
 import { TOOLS } from './services/toolRegistry';
 import { Tool, ToolCategory } from './types';
@@ -40,6 +41,29 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<ToolCategory | 'All'>('All');
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  // PWA Install Handler
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    });
+  }, []);
+
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        }
+        setDeferredPrompt(null);
+      });
+    } else {
+      alert("To install on Android/iOS:\n\n1. Tap the Share/Menu button in your browser.\n2. Select 'Add to Home Screen' or 'Install App'.");
+    }
+  };
 
   // Filter tools
   const filteredTools = useMemo(() => {
@@ -146,7 +170,15 @@ const App: React.FC = () => {
             ))}
           </nav>
 
-          <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+             <button
+              onClick={handleInstallClick}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors text-sm font-medium"
+            >
+              <Download size={18} />
+              Install App
+            </button>
+
             <button
               onClick={toggleTheme}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm font-medium"
@@ -168,9 +200,14 @@ const App: React.FC = () => {
               </div>
               <span className="font-bold text-lg">OmniTools</span>
             </div>
-            <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -mr-2">
-              <Menu size={24} />
-            </button>
+            <div className="flex items-center gap-2">
+                <button onClick={handleInstallClick} className="p-2 text-green-600">
+                    <Download size={22} />
+                </button>
+                <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -mr-2">
+                  <Menu size={24} />
+                </button>
+            </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
@@ -204,13 +241,15 @@ const App: React.FC = () => {
               </div>
             ) : (
               <div className="animate-in fade-in duration-300">
-                <div className="mb-8">
-                  <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-                    {activeCategory === 'All' ? 'All Tools' : activeCategory}
-                  </h2>
-                  <p className="text-slate-500 dark:text-slate-400">
-                    {filteredTools.length} tools available
-                  </p>
+                <div className="mb-8 flex justify-between items-end">
+                  <div>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                        {activeCategory === 'All' ? 'All Tools' : activeCategory}
+                    </h2>
+                    <p className="text-slate-500 dark:text-slate-400">
+                        {filteredTools.length} tools available
+                    </p>
+                  </div>
                 </div>
 
                 {categories.filter(c => c !== 'All' && (activeCategory === 'All' || activeCategory === c)).map(category => {
